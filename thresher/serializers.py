@@ -45,7 +45,7 @@ class ArticleSerializer(JSONFieldModelSerializer):
 
     class Meta:
         model = Article
-        fields = ('article_id', 'text', 'date_published', 'city_published',
+        fields = ('id', 'text', 'date_published', 'city_published',
                   'state_published', 'periodical', 'periodical_code',
                   'parse_version', 'annotators')
 
@@ -60,9 +60,12 @@ class AnalysisTypeSerializer(JSONFieldModelSerializer):
 class TUASerializer(JSONFieldModelSerializer):
     json_fields = ['offsets']
     analysis_type = AnalysisTypeSerializer()
-    article = ArticleSerializer()
+    text = serializers.SerializerMethodField('get_artile_text')
 
     class Meta:
         model = TUA
-        fields = ('id', 'tua_id', 'analysis_type', 'article', 'offsets')
+        fields = ('id', 'tua_id', 'analysis_type', 'text', 'offsets')
         #depth = 1
+    
+    def get_artile_text(self, obj):
+        return obj.article.text

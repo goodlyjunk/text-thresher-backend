@@ -3,7 +3,7 @@ from django.db import models
 # Articles containing text for analysis
 class Article(models.Model):
     # unique id
-    article_id = models.IntegerField(primary_key=True)
+    id = models.IntegerField(primary_key=True)
 
     # raw article text
     text = models.TextField()

@@ -39,12 +39,12 @@ def load_schema(schema):
     print "loading schema..."
 
 def load_article(article):
-    new_id = int(article['metadata']['article_id'])
+    new_id = int(article['metadata']['id'])
 
     try: # Catch duplicate article ids and assign new ids.
-        existing_article = Article.objects.get(article_id=new_id)
+        existing_article = Article.objects.get(id=new_id)
         if article['text'] != existing_article.text:
-            max_id = Article.objects.all().order_by('-article_id')[0].article_id
+            max_id = Article.objects.all().order_by('-id')[0].id
             new_id = max_id + 1 if max_id >= HIGH_ID else HIGH_ID
             print "NEW ID!", new_id
         else:
@@ -55,7 +55,7 @@ def load_article(article):
         pass
 
     article_obj = Article(
-        article_id=new_id,
+        id=new_id,
         text=article['text'],
         date_published=article['metadata']['date_published'],
         city_published=article['metadata']['city'],

@@ -22,7 +22,7 @@ DUPLICATES_FILE = os.path.join(DATA_FOLDER,"duplicates.txt")
 
 # Format of the article filenames.
 # Example: 1000BethlehemPA-LehighValleyLive-02.txt
-FILENAME_RE = (r'^(?P<article_id>\d+)' # article ID
+FILENAME_RE = (r'^(?P<id>\d+)' # article ID
                '-?' # optional hyphen
                '(?P<city>[\w\ \.-]+)' # city name
                ',? ?' # optional space and comma
@@ -78,11 +78,11 @@ def parse_document(path):
         raw_text = f.read()
 
     # extract info from the file name
-    article_id, city, state, periodical, periodical_code = parse_filename(path)
+    id, city, state, periodical, periodical_code = parse_filename(path)
 
     # don't parse known duplicates
-    if article_id in parse_duplicates():
-        raise ArticleParseError("Article %s is known duplicate!" % article_id,
+    if id in parse_duplicates():
+        raise ArticleParseError("Article %s is known duplicate!" % id,
                                 ArticleParseError.DUPLICATE_ERROR)
 
     # extract info from the header and remove it from the text
@@ -108,13 +108,13 @@ def parse_document(path):
 
     # If the only tua_type is 'Useless', this document is likely a duplicate.
     if len(tuas.keys()) == 1 and 'Useless' in tuas.keys():
-        print "Possibly useless:", article_id
+        print "Possibly useless:", id
         raise ArticleParseError("Only found Useless tuas!",
                                 ArticleParseError.DUPLICATE_ERROR)
 
     # Warning: brackets left over are usually bad news.
     if '[' in clean_text or ']' in clean_text:
-        print "Possible Error:", article_id
+        print "Possible Error:", id
 #        raise ArticleParseError("Brackets remain in clean text!",
 #                                ArticleParseError.BRACKET_WARNING)
 
@@ -124,7 +124,7 @@ def parse_document(path):
         'annotators': annotators,
         'version': version,
         'date_published': date_published,
-        'article_id': article_id,
+        'id': id,
         'city': city,
         'state': state,
         'periodical': periodical,
@@ -141,7 +141,7 @@ def parse_document(path):
 #    print "annotators:", annotators
 #    print "version:", version
 #    print "date published:", date_published
-#    print "article ID:", article_id
+#    print "article ID:", id
 #    print "city:", city
 #    print "state:", state
 #    print "periodical:", periodical
@@ -384,7 +384,7 @@ def parse_filename(filename):
     raw_name = os.path.basename(filename)
     match = re.search(FILENAME_RE, raw_name)
     if match:
-        return match.group('article_id', 'city', 'state', 'periodical',
+        return match.group('id', 'city', 'state', 'periodical',
                            'periodical_code')
     else:
         raise ArticleParseError('Bad File Name: ' + raw_name,
