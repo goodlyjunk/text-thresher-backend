@@ -1,4 +1,27 @@
 from django.db import models
+from django.contrib.auth.models import User
+
+# User doing the annotating - uses OneToOneFields to add attributes to django.contrib.auth.User
+class UserProfile(models.Model):
+    # Add link to default User model
+    user = models.OneToOneField(User)
+
+    # All topics have a set of users associated with them, so add a link to the parent Topic
+    topic = models.ForeignKey("Topic", on_delete=models.CASCADE, related_name="users")
+    # "Topic" is in strings because it has not yet been defined.
+
+    # Metadata
+    experience_score = models.DecimalField(max_digits=5, decimal_places=3)
+    accuracy_score = models.DecimalField(max_digits=5, decimal_places=3)
+
+    def __unicode__(self):
+        return "User %s" % self.user
+
+class Client(models.Model):
+    name = models.CharField(max_length=100)
+    topic = models.ForeignKey("Topic", on_delete=models.CASCADE, related_name="clients")
+    def __unicode__(self):
+        return "Client %s" % username
 
 # Articles containing text for analysis
 class Article(models.Model):
@@ -66,22 +89,19 @@ class Topic(models.Model):
     topic_id = models.IntegerField() 
 
     # an id of its parent topic
-    parent_id = models.ForeignKey(self, related_name="subtopics")
-
-    # The analysis type to which this topic belongs
-    # analysis_type = models.ForeignKey(AnalysisType, related_name='topics')
+    parent_id = models.ForeignKey("self", related_name="subtopics", on_delete=models.CASCADE)
 
     # The name of the topic
     name = models.TextField()
 
-    # Glossary for analysis, copied from Analysis Type
-    glossary = models.TextField() # as a JSON map
+    # Glossary related to the topic under analysis
+    glossary = models.TextField()                 # as a JSON map
 
     instructions = models.TextField()
 
     
     class Meta:
-        unique_together = ("topic_id", "analysis_type")
+        unique_together = ("topic_id", "name") # not sure if this is correct.
 
     def __unicode__(self):
         return "Topic %s in Analysis Type %s" % (self.name, self.analysis_type.name) 
@@ -89,12 +109,12 @@ class Topic(models.Model):
 # The question in a given topic
 class QuestionUnderTopic(models.Model):
     # an id within the given topic
-    question_id = models.OneToOneField(QuestionContent)
+    question_id = models.OneToOneField("QuestionContent")
 
     # The topic this question belongs to
     topic_id = models.ForeignKey(Topic, related_name="related_questions")
 
-    # The order of the question comparing to other questions under the same topic
+    # The order of the question compared to other questions under the same topic
     order = models.IntegerField()
     
     class Meta:
@@ -135,16 +155,13 @@ class Answer(models.Model):
     answer_id = models.IntegerField()
 
     # The question to which this answer belongs
-    question_id = models.OneToOneField(QuestionContent)
+    question_id = models.ForeignKey(QuestionContent, related_name="answers")
     
     # The text of the amswer
     answer_content = models.TextField()
 
-    # The order of the answer popping up to user
-    # order = models.IntegerField()
-
     # The next question the answer is leading to
-    next_question_id = models.OneToOneField(QuestionContent)
+    next_question_id = models.ForeignKey(QuestionContent, related_name="next_question")
 
     class Meta:
         unique_together = ("answer_id", "question_id")
@@ -186,8 +203,8 @@ class SubmittedAnswer(models.Model):
     # The highlight group this answer is part of
     highlight_group = models.ForeignKey(HighlightGroup)
 
-    # The id of the user who submitted this answer
-    user_id = models.IntegerField()
+    # The user who submitted this answer
+    # user_profile = models.ForeignKey(UserProfile, related_name="submitted") THIS IS NOT RUNNING! ask Stefan.
 
     class Meta:
         abstract = True
@@ -196,7 +213,7 @@ class SubmittedAnswer(models.Model):
 # A submitted answer for a Multiple Choice question
 class MCSubmittedAnswer(SubmittedAnswer):
     # The question this answer is for
-    question = models.ForeignKey(Question, limit_choices_to={"type":"mc"})
+    question = models.ForeignKey(QuestionContent, limit_choices_to={"type":"mc"})
 
     # The answer chosen
     answer = models.ForeignKey(Answer)
@@ -204,17 +221,17 @@ class MCSubmittedAnswer(SubmittedAnswer):
 # A submitted answer for a Checklist question
 class CLSubmittedAnswer(SubmittedAnswer):
     # The question this answer is for
-    question = models.ForeignKey(Question, limit_choices_to={"type":"cl"})
+    question = models.ForeignKey(QuestionContent, limit_choices_to={"type":"cl"})
 
     # For a checklist, each submission could include multiple answers 
     # Answers are re-used across submissions
     # Therefore we need a many to many relationship
     answer = models.ManyToManyField(Answer)
 
-# A submitted higlight group for a Textbox question
+# A submitted highlight group for a Textbox question
 class TBSubmittedAnswer(SubmittedAnswer):
     # The question this answer is for
-    question = models.ForeignKey(Question, limit_choices_to={"type":"tb"})
+    question = models.ForeignKey(QuestionContent, limit_choices_to={"type":"tb"})
 
     # The text of the answer
     answer = models.TextField()
@@ -222,8 +239,8 @@ class TBSubmittedAnswer(SubmittedAnswer):
 # A submitted answer for a Date Time question
 class DTSubmittedAnswer(SubmittedAnswer):
     # The question this answer is for
-    question = models.ForeignKey(Question, limit_choices_to={"type":"dt"})
-
+    question = models.ForeignKey(QuestionContent, limit_choices_to={"type":"dt"})
+    
     # The submitted date time answer
     answer = models.DateTimeField()
     
