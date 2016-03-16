@@ -71,19 +71,11 @@ class TopicsSchemaParser(object):
             question_args['question_id'] = question_args.pop('id')
             # rename text to question_text
             question_args['question_text'] = question_args.pop('text')
-
-            # remove the answers to be loaded after
-            answers = question_args.pop('answers')
-
-            # Create the Question
-            question = QuestionContent.objects.create(**question_args)
-
             # Create the QuestionUnderTopic
             QuestionUnderTopic.objects.create(topic=topic, 
                                               question=question, 
                                               order=question.question_id, 
                                               hidden=True)
-
             # Load the question's answers
             self.load_answers(answers, question)
 
@@ -100,7 +92,6 @@ class TopicsSchemaParser(object):
             # topic_args['analysis_type'] = self.analysis_type
             # set reference to parent
             topic_args['parent'] = self.topic_obj
-            
             # Create the topic with the values in topic_args
             topic = Topic.objects.create(**topic_args)
             self.load_questions(questions, topic)

@@ -21,21 +21,14 @@ ANALYSIS_TYPES = {}
 HIGH_ID = 20000
 
 def load_schema(schema):
+    print(schema['title'])
+    print(schema['parent'])
     schema_name = schema['title']
     schema_parent = schema['parent']
     # if schema_parent:
     #     p_id = Topic.objects.get(name=schema_parent).id #TODO: Query for parent.
     # else:
     p_id = None
-    # schema_obj = AnalysisType(
-    #     parent_id = p_id,
-    #     name=schema_name,
-    #     requires_processing=schema_name not in ['Useless', 'Future'],
-    #     instructions=schema['instructions'],
-    #     glossary=json.dumps(schema['glossary']),
-    #     #topics=json.dumps(schema['topics']),
-    #     question_dependencies=json.dumps(schema['dependencies'])
-    # )
     schema_obj = Topic(
         parent = p_id,
         name=schema_name,
