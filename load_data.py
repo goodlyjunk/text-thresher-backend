@@ -16,13 +16,10 @@ from data.parse_document import parse_document
 from data.parse_schema import parse_schema
 from parse_schema import TopicsSchemaParser
 from thresher.models import Article, AnalysisType, TUA, Topic
-import pprint;
 ANALYSIS_TYPES = {}
 HIGH_ID = 20000
 
 def load_schema(schema):
-    print(schema['title'])
-    print(schema['parent'])
     schema_name = schema['title']
     schema_parent = schema['parent']
     # if schema_parent:
