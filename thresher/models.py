@@ -119,31 +119,13 @@ class Topic(models.Model):
         # return "Topic %s in Analysis Type %s" % (self.name, self.analysis_type.name)
         return "Topic %s" % (self.name)
 
-# The question in a given topic
-class QuestionUnderTopic(models.Model):
-    # an id within the given topic
-    question = models.OneToOneField("QuestionContent", on_delete=models.CASCADE)
-
-    # The topic this question belongs to
-    topic = models.ForeignKey(Topic, related_name="related_questions", on_delete=models.CASCADE)
-
-    # The order of the question compared to other questions under the same topic
-    order = models.IntegerField()
-    
-    # Whether this question is hidden or not
-    hidden = models.BooleanField()
-
-    class Meta:
-        unique_together = ("question", "topic")
-
-    def __unicode__(self):
-        return "Question %d in Topic %s" % (self.question_id, self.topic_id.name)
-
-# Question itself
-class QuestionContent(models.Model):
+# Question
+class Question(models.Model):
     # The question id the content is related to
     question_id = models.IntegerField()
 
+    # The topic this question belongs to
+    topic = models.ForeignKey(Topic, related_name="related_questions", on_delete=models.CASCADE)
 
     # The type of question (e.g. multiple choice, text box, ...)
     # A list of all possible question types
@@ -160,10 +142,10 @@ class QuestionContent(models.Model):
     question_text = models.TextField()
 
     class Meta:
-        unique_together = ("question_text", "type")
+        unique_together = ("topic", "question_text", "type")
 
     def __unicode__(self):
-        return "Question %d of type %s" % (self.question_text, self.type)
+        return "Question %d of type %s in topic %s" % (self.question_text, self.type, self.topic.name)
 
 # Possible answers for a given question
 # NOTE: This does NOT represent submitted answers, only possible answers
@@ -172,13 +154,13 @@ class Answer(models.Model):
     answer_id = models.IntegerField()
 
     # The question to which this answer belongs
-    question = models.ForeignKey(QuestionContent, related_name="answers")
+    question = models.ForeignKey(Question, related_name="answers")
     
     # The text of the amswer
     answer_content = models.TextField()
 
     # The next question the answer is leading to
-    next_question = models.ForeignKey(QuestionContent, related_name="next_question", default=question)
+    next_question = models.ForeignKey(Question, related_name="next_question", null=True)
 
     class Meta:
         unique_together = ("answer_id", "question")
@@ -227,7 +209,7 @@ class SubmittedAnswer(models.Model):
 # A submitted answer for a Multiple Choice question
 class MCSubmittedAnswer(SubmittedAnswer):
     # The question this answer is for
-    question = models.ForeignKey(QuestionContent, limit_choices_to={"type":"mc"})
+    question = models.ForeignKey(Question, limit_choices_to={"type":"mc"})
 
     # The user who submitted this answer
     user_submitted = models.ForeignKey(UserProfile, related_name="submitted_mc")
@@ -238,7 +220,7 @@ class MCSubmittedAnswer(SubmittedAnswer):
 # A submitted answer for a Checklist question
 class CLSubmittedAnswer(SubmittedAnswer):
     # The question this answer is for
-    question = models.ForeignKey(QuestionContent, limit_choices_to={"type":"cl"})
+    question = models.ForeignKey(Question, limit_choices_to={"type":"cl"})
 
     # The user who submitted this answer
     user_submitted = models.ForeignKey(UserProfile, related_name="submitted_cl")
@@ -251,7 +233,7 @@ class CLSubmittedAnswer(SubmittedAnswer):
 # A submitted highlight group for a Textbox question
 class TBSubmittedAnswer(SubmittedAnswer):
     # The question this answer is for
-    question = models.ForeignKey(QuestionContent, limit_choices_to={"type":"tb"})
+    question = models.ForeignKey(Question, limit_choices_to={"type":"tb"})
 
     # The user who submitted this answer
     user_submitted = models.ForeignKey(UserProfile, related_name="submitted_tb")
@@ -262,7 +244,7 @@ class TBSubmittedAnswer(SubmittedAnswer):
 # A submitted answer for a Date Time question
 class DTSubmittedAnswer(SubmittedAnswer):
     # The question this answer is for
-    question = models.ForeignKey(QuestionContent, limit_choices_to={"type":"dt"})
+    question = models.ForeignKey(Question, limit_choices_to={"type":"dt"})
 
     # The user who submitted this answer
     user_submitted = models.ForeignKey(UserProfile, related_name="submitted_dt")
