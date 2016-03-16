@@ -115,6 +115,7 @@ class Topic(models.Model):
     # class Meta:
     #     unique_together = ("parent", "name") # not sure if this is correct.
 
+
     def __unicode__(self):
         # return "Topic %s in Analysis Type %s" % (self.name, self.analysis_type.name)
         return "Topic %s" % (self.name)
