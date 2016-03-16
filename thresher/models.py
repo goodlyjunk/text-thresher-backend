@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 # User doing the annotating - uses OneToOneFields to add attributes to django.contrib.auth.User
 class UserProfile(models.Model):
@@ -86,22 +87,33 @@ class TUA(models.Model):
 # Possible topics for a given Analysis Type
 class Topic(models.Model):
     # an id within the given Analysis Type
-    topic_id = models.IntegerField() 
+    # topic_id = models.IntegerField() # not necessary! django automatically generates IDs.
 
     # an id of its parent topic
-    parent = models.ForeignKey("self", related_name="subtopics", on_delete=models.CASCADE)
+    parent = models.ForeignKey("self", related_name="subtopics", on_delete=models.CASCADE, null=True)
 
     # The name of the topic
     name = models.TextField()
+
+    # The order of a leaf-topic
+    order = models.IntegerField(null=True)
 
     # Glossary related to the topic under analysis
     glossary = models.TextField()                 # as a JSON map
 
     instructions = models.TextField()
 
+    def validate_unique(self, exclude=None):
+        qs = Topic.objects.filter(name=self.name)
+        if qs.filter(parent=self.parent).exists() and self.id != qs[0].id:
+            raise ValidationError('Subtopics need to be unique.')
+
+    def save(self, *args, **kwargs):
+        self.validate_unique()
+        super(Topic, self).save(*args, **kwargs)
     
-    class Meta:
-        unique_together = ("topic_id", "name") # not sure if this is correct.
+    # class Meta:
+    #     unique_together = ("parent", "name") # not sure if this is correct.
 
     def __unicode__(self):
         # return "Topic %s in Analysis Type %s" % (self.name, self.analysis_type.name)
@@ -110,14 +122,17 @@ class Topic(models.Model):
 # The question in a given topic
 class QuestionUnderTopic(models.Model):
     # an id within the given topic
-    question = models.OneToOneField("QuestionContent")
+    question = models.OneToOneField("QuestionContent", on_delete=models.CASCADE)
 
     # The topic this question belongs to
-    topic = models.ForeignKey(Topic, related_name="related_questions")
+    topic = models.ForeignKey(Topic, related_name="related_questions", on_delete=models.CASCADE)
 
     # The order of the question compared to other questions under the same topic
     order = models.IntegerField()
     
+    # Whether this question is hidden or not
+    hidden = models.BooleanField()
+
     class Meta:
         unique_together = ("question", "topic")
 
@@ -128,6 +143,7 @@ class QuestionUnderTopic(models.Model):
 class QuestionContent(models.Model):
     # The question id the content is related to
     question_id = models.IntegerField()
+
 
     # The type of question (e.g. multiple choice, text box, ...)
     # A list of all possible question types
@@ -162,7 +178,7 @@ class Answer(models.Model):
     answer_content = models.TextField()
 
     # The next question the answer is leading to
-    next_question = models.ForeignKey(QuestionContent, related_name="next_question")
+    next_question = models.ForeignKey(QuestionContent, related_name="next_question", default=question)
 
     class Meta:
         unique_together = ("answer_id", "question")
