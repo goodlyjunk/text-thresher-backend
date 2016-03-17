@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 # User doing the annotating - uses OneToOneFields to add attributes to django.contrib.auth.User
 class UserProfile(models.Model):
@@ -86,47 +87,45 @@ class TUA(models.Model):
 # Possible topics for a given Analysis Type
 class Topic(models.Model):
     # an id within the given Analysis Type
-    topic_id = models.IntegerField() 
+    # topic_id = models.IntegerField() # not necessary! django automatically generates IDs.
 
     # an id of its parent topic
-    parent_id = models.ForeignKey("self", related_name="subtopics", on_delete=models.CASCADE)
+    parent = models.ForeignKey("self", related_name="subtopics", on_delete=models.CASCADE, null=True)
 
     # The name of the topic
     name = models.TextField()
+
+    # The order of a leaf-topic
+    order = models.IntegerField(null=True)
 
     # Glossary related to the topic under analysis
     glossary = models.TextField()                 # as a JSON map
 
     instructions = models.TextField()
 
+    def validate_unique(self, exclude=None):
+        qs = Topic.objects.filter(name=self.name)
+        if qs.filter(parent=self.parent).exists() and self.id != qs[0].id:
+            raise ValidationError('Subtopics need to be unique.')
+
+    def save(self, *args, **kwargs):
+        self.validate_unique()
+        super(Topic, self).save(*args, **kwargs)
     
-    class Meta:
-        unique_together = ("topic_id", "name") # not sure if this is correct.
+    # class Meta:
+    #     unique_together = ("parent", "name") # not sure if this is correct.
 
     def __unicode__(self):
-        return "Topic %s in Analysis Type %s" % (self.name, self.analysis_type.name) 
+        # return "Topic %s in Analysis Type %s" % (self.name, self.analysis_type.name)
+        return "Topic %s" % (self.name)
 
-# The question in a given topic
-class QuestionUnderTopic(models.Model):
-    # an id within the given topic
-    question_id = models.OneToOneField("QuestionContent")
-
-    # The topic this question belongs to
-    topic_id = models.ForeignKey(Topic, related_name="related_questions")
-
-    # The order of the question compared to other questions under the same topic
-    order = models.IntegerField()
-    
-    class Meta:
-        unique_together = ("question_id", "topic_id")
-
-    def __unicode__(self):
-        return "Question %d in Topic %s" % (self.question_id, self.topic_id.name)
-
-# Question itself
-class QuestionContent(models.Model):
+# Question
+class Question(models.Model):
     # The question id the content is related to
     question_id = models.IntegerField()
+
+    # The topic this question belongs to
+    topic = models.ForeignKey(Topic, related_name="related_questions", on_delete=models.CASCADE)
 
     # The type of question (e.g. multiple choice, text box, ...)
     # A list of all possible question types
@@ -143,10 +142,10 @@ class QuestionContent(models.Model):
     question_text = models.TextField()
 
     class Meta:
-        unique_together = ("question_text", "type")
+        unique_together = ("topic", "question_text", "type")
 
     def __unicode__(self):
-        return "Question %d of type %s" % (self.question_text, self.type)
+        return "Question %d of type %s in topic %s" % (self.question_id, self.type, self.topic.name)
 
 # Possible answers for a given question
 # NOTE: This does NOT represent submitted answers, only possible answers
@@ -155,22 +154,21 @@ class Answer(models.Model):
     answer_id = models.IntegerField()
 
     # The question to which this answer belongs
-    question_id = models.ForeignKey(QuestionContent, related_name="answers")
+    question = models.ForeignKey(Question, related_name="answers")
     
     # The text of the amswer
     answer_content = models.TextField()
 
     # The next question the answer is leading to
-    next_question_id = models.ForeignKey(QuestionContent, related_name="next_question")
+    next_question = models.ForeignKey(Question, related_name="next_question", null=True)
 
     class Meta:
-        unique_together = ("answer_id", "question_id")
+        unique_together = ("answer_id", "question")
 
     def __unicode__(self):
-        return "Answer %d for Question %d in Topic %s" % (self.answer_id, 
-                                            self.question_id,
-                                            self.question_id.topic_id.name)
-
+        return ("Answer %d for Question %s " 
+                "in Topic %s") % (self.answer_id, self.question.question_text, 
+                                 self.question.topic.name)
 
 # A submitted highlight group
 class HighlightGroup(models.Model):
@@ -203,9 +201,6 @@ class SubmittedAnswer(models.Model):
     # The highlight group this answer is part of
     highlight_group = models.ForeignKey(HighlightGroup)
 
-    # The user who submitted this answer
-    # user_profile = models.ForeignKey(UserProfile, related_name="submitted") THIS IS NOT RUNNING! ask Stefan.
-
     class Meta:
         abstract = True
 
@@ -213,7 +208,10 @@ class SubmittedAnswer(models.Model):
 # A submitted answer for a Multiple Choice question
 class MCSubmittedAnswer(SubmittedAnswer):
     # The question this answer is for
-    question = models.ForeignKey(QuestionContent, limit_choices_to={"type":"mc"})
+    question = models.ForeignKey(Question, limit_choices_to={"type":"mc"})
+
+    # The user who submitted this answer
+    user_submitted = models.ForeignKey(UserProfile, related_name="submitted_mc")
 
     # The answer chosen
     answer = models.ForeignKey(Answer)
@@ -221,7 +219,10 @@ class MCSubmittedAnswer(SubmittedAnswer):
 # A submitted answer for a Checklist question
 class CLSubmittedAnswer(SubmittedAnswer):
     # The question this answer is for
-    question = models.ForeignKey(QuestionContent, limit_choices_to={"type":"cl"})
+    question = models.ForeignKey(Question, limit_choices_to={"type":"cl"})
+
+    # The user who submitted this answer
+    user_submitted = models.ForeignKey(UserProfile, related_name="submitted_cl")
 
     # For a checklist, each submission could include multiple answers 
     # Answers are re-used across submissions
@@ -231,7 +232,10 @@ class CLSubmittedAnswer(SubmittedAnswer):
 # A submitted highlight group for a Textbox question
 class TBSubmittedAnswer(SubmittedAnswer):
     # The question this answer is for
-    question = models.ForeignKey(QuestionContent, limit_choices_to={"type":"tb"})
+    question = models.ForeignKey(Question, limit_choices_to={"type":"tb"})
+
+    # The user who submitted this answer
+    user_submitted = models.ForeignKey(UserProfile, related_name="submitted_tb")
 
     # The text of the answer
     answer = models.TextField()
@@ -239,7 +243,10 @@ class TBSubmittedAnswer(SubmittedAnswer):
 # A submitted answer for a Date Time question
 class DTSubmittedAnswer(SubmittedAnswer):
     # The question this answer is for
-    question = models.ForeignKey(QuestionContent, limit_choices_to={"type":"dt"})
+    question = models.ForeignKey(Question, limit_choices_to={"type":"dt"})
+
+    # The user who submitted this answer
+    user_submitted = models.ForeignKey(UserProfile, related_name="submitted_dt")
     
     # The submitted date time answer
     answer = models.DateTimeField()
