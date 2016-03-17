@@ -67,7 +67,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ('id', 'question_id', 'type', 'text', 'answers')
+        fields = ('id', 'question_id', 'type', 'question_text', 'answers')
 
 class TopicSerializer(serializers.ModelSerializer):
     # A nested serializer for all the questions
