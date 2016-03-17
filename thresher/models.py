@@ -167,7 +167,7 @@ class Answer(models.Model):
 
     def __unicode__(self):
         return ("Answer %d for Question %d " 
-                "in Topic %s" % (self.answer_id, self.question, 
+                "in Topic %s") % (self.answer_id, self.question, 
                                  self.question.topic.name)
 
 # A submitted highlight group
