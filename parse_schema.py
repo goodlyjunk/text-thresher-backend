@@ -104,8 +104,14 @@ class TopicsSchemaParser(object):
             topic = topics.filter(order=dep.topic)
             question = Question.objects.filter(topic=topic, 
                                                question_id=dep.question)
-            answer = Answer.objects.filter(question=question,
+            next_question = Question.objects.filter(
+                topic=topic, question_id=dep.next_question)[0]
+            if dep.answer == 'any':
+                answers = Answer.objects.filter(question=question)
+            else:
+                answers = Answer.objects.filter(question=question,
                                            answer_id=dep.answer)
-            import ipdb; ipdb.set_trace()
-            # find the answer:
+            for answer in answers:
+                answer.next_question = next_question
+                answer.save()
 
