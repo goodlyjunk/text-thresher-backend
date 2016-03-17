@@ -71,7 +71,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 class TopicSerializer(serializers.ModelSerializer):
     # A nested serializer for all the questions
-    questions = QuestionSerializer(many=True)
+    related_questions = QuestionSerializer(many=True)
 
     # Nested serializer for all clients associated with a topic
     clients = ClientSerializer(many=True)
@@ -81,7 +81,7 @@ class TopicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Topic
         fields = ('id', 'parent', 'name', 'order', 'glossary',
-                  'instructions', 'questions', 'clients')
+                  'instructions', 'related_questions', 'clients')
 
 class AnalysisTypeSerializer(serializers.ModelSerializer):
     glossary = JSONSerializerField()
