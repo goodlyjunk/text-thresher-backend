@@ -21,40 +21,40 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-class TUAViewSet(viewsets.ModelViewSet):
-    serializer_class = TUASerializer
-    paginate_by = 1
+# class TUAViewSet(viewsets.ModelViewSet):
+#     serializer_class = TUASerializer
+#     paginate_by = 1
     
-    def get_queryset(self):
-        analysis_types = AnalysisType.objects.filter(name="Protester")
-        if analysis_types:
-            protester_type = analysis_types[0]
-            return TUA.objects.filter(analysis_type=protester_type)
-        else:
-            return TUA.objects.all()
+#     def get_queryset(self):
+#         analysis_types = AnalysisType.objects.filter(name="Protester")
+#         if analysis_types:
+#             protester_type = analysis_types[0]
+#             return TUA.objects.filter(analysis_type=protester_type)
+#         else:
+#             return TUA.objects.all()
 
-    @list_route()
-    def random(self, request):
-        """Retrieve a random unprocessed TUA."""
-        tuas = self.get_queryset()
-        self.object = tuas.filter(
-            is_processed=False,
-            analysis_type__requires_processing=True).order_by('?')[0]
-        serializer = self.get_serializer(self.object)
-        data = {}
-        data['results'] = [serializer.data]
-        data['count'] = 1
-        data['previous'] = None
-        data['next'] = request.build_absolute_uri()
-        return Response(data)
+#     @list_route()
+#     def random(self, request):
+#         """Retrieve a random unprocessed TUA."""
+#         tuas = self.get_queryset()
+#         self.object = tuas.filter(
+#             is_processed=False,
+#             analysis_type__requires_processing=True).order_by('?')[0]
+#         serializer = self.get_serializer(self.object)
+#         data = {}
+#         data['results'] = [serializer.data]
+#         data['count'] = 1
+#         data['previous'] = None
+#         data['next'] = request.build_absolute_uri()
+#         return Response(data)
 
 class ArticleViewSet(viewsets.ModelViewSet):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
 
-class AnalysisTypeViewSet(viewsets.ModelViewSet):
-    queryset = AnalysisType.objects.all()
-    serializer_class = AnalysisTypeSerializer
+# class AnalysisTypeViewSet(viewsets.ModelViewSet):
+#     queryset = AnalysisType.objects.all()
+#     serializer_class = AnalysisTypeSerializer
  
 class TopicViewSet(viewsets.ModelViewSet):
     queryset = Topic.objects.all()
