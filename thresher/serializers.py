@@ -84,10 +84,11 @@ class ArticleSerializer(serializers.ModelSerializer):
                   'parse_version', 'annotators')
 
 class AnswerSerializer(serializers.ModelSerializer):
-    
+    next_question = QuestionSerializer()
+
     class Meta:
         model = Answer
-        fields = ('id', 'answer_id', 'text')
+        fields = ('id', 'answer_id', 'answer_content', 'next_question')
 
 class QuestionSerializer(serializers.ModelSerializer):
     # A nested serializer for all the answers (if any)
@@ -104,9 +105,12 @@ class TopicSerializer(serializers.ModelSerializer):
     # Nested serializer for all clients associated with a topic
     clients = ClientSerializer(many=True)
 
+    glossary = JSONSerializerField()
+
     class Meta:
         model = Topic
-        fields = ('id', 'topic_id', 'name', 'questions', 'clients')
+        fields = ('id', 'parent', 'name', 'order', 'glossary',
+                  'instructions', 'questions', 'clients')
 
 class AnalysisTypeSerializer(serializers.ModelSerializer):
     glossary = JSONSerializerField()
@@ -132,32 +136,36 @@ class TUASerializer(serializers.ModelSerializer):
 class MCSubmittedAnswerSerializer(serializers.ModelSerializer):
     question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
     answer = serializers.PrimaryKeyRelatedField(queryset=Answer.objects.all()) 
+    user = UserSerializer()
 
     class Meta:
         model = MCSubmittedAnswer
-        fields = ('question', 'answer')
+        fields = ('question', 'answer', 'user')
 
 class CLSubmittedAnswerSerializer(serializers.ModelSerializer):
     question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
     answer = serializers.PrimaryKeyRelatedField(many=True, queryset=Answer.objects.all())
+    user = UserSerializer()
 
     class Meta:
          model = CLSubmittedAnswer
-         fields = ('question', 'answer')
+         fields = ('question', 'answer', 'user')
  
 class TBSubmittedAnswerSerializer(serializers.ModelSerializer):
     question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
+    user = UserSerializer()
 
     class Meta:
          model = TBSubmittedAnswer
-         fields = ('question', 'answer')
+         fields = ('question', 'answer', 'user')
    
 class DTSubmittedAnswerSerializer(serializers.ModelSerializer):
     question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
+    user = UserSerializer()
 
     class Meta:
          model = DTSubmittedAnswer
-         fields = ('question', 'answer')
+         fields = ('question', 'answer', 'user')
 
 ## Custom fields for the serializers ##
 
