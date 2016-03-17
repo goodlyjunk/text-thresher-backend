@@ -71,11 +71,14 @@ class TopicsSchemaParser(object):
             question_args['question_id'] = question_args.pop('id')
             # rename text to question_text
             question_args['question_text'] = question_args.pop('text')
-            # Create the QuestionUnderTopic
-            QuestionUnderTopic.objects.create(topic=topic, 
-                                              question=question, 
-                                              order=question.question_id, 
-                                              hidden=True)
+            # create the topic
+            question_args['topic'] = topic
+            # store the answers for later
+            answers = question_args.pop('answers')
+            
+            # Create the Question
+            question = Question.objects.create(**question_args)
+
             # Load the question's answers
             self.load_answers(answers, question)
 
