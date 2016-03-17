@@ -145,7 +145,7 @@ class Question(models.Model):
         unique_together = ("topic", "question_text", "type")
 
     def __unicode__(self):
-        return "Question %d of type %s in topic %s" % (self.question_text, self.type, self.topic.name)
+        return "Question %d of type %s in topic %s" % (self.question_id, self.type, self.topic.name)
 
 # Possible answers for a given question
 # NOTE: This does NOT represent submitted answers, only possible answers
@@ -166,10 +166,8 @@ class Answer(models.Model):
         unique_together = ("answer_id", "question")
 
     def __unicode__(self):
-        return "Answer %d for Question %d in Topic %s" % (self.answer_id, 
-                                            self.question_id,
-                                            self.question_id.topic_id.name)
-
+        return "Answer %d for Question %d in Topic %s" 
+                % (self.answer_id, self.question, self.question.topic.name)
 
 # A submitted highlight group
 class HighlightGroup(models.Model):
