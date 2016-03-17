@@ -16,9 +16,9 @@ class TopicsSchemaParser(object):
     """
     def __init__(self, topic_obj, schema, dependencies):
         """
-        schema: a json schema as a string or loaded json
-        dep: the list of answers that point to another question
-        parent: the Topic object that is the parent of this schema
+        schema: a json schema as a string or loaded json with subtopics
+        dependencies: the list of answers that point to another question
+        topic_obj: the Topic object that is the parent of subtopics in schema
         """
         self.topic_obj = topic_obj
         # if the schema is a string, tries to load it as json, otherwise,
@@ -40,8 +40,9 @@ class TopicsSchemaParser(object):
         Dependency = namedtuple('Dependency', ['topic', 'question', 'answer', 'next_topic', 'next_question'])
         clean_dep = []
         for dep in self.dep:
-            new_dep = dep[0].split(".")
-            new_dep.extend(dep[1].split("."))
+            answer, next_question = dep
+            new_dep = answer.split(".")
+            new_dep.extend(next_question.split("."))
             new_dep = [int(val) if val != 'any' else val for val in new_dep]
             clean_dep.append(Dependency(*new_dep))
         self.dep = clean_dep
@@ -58,7 +59,6 @@ class TopicsSchemaParser(object):
             answer_args['answer_content'] = answer_args.pop('text')
             # create the question reference
             answer_args['question'] = question
-            answer_args['next_question'] = question
             # Create the answer in the database
             answer = Answer.objects.create(**answer_args)
 
@@ -67,18 +67,16 @@ class TopicsSchemaParser(object):
         Creates the questions instances for the given topic
         """
         for question_args in questions:
-            # rename the id to question_id
+            # Rename the id to question_id
             question_args['question_id'] = question_args.pop('id')
-            # rename text to question_text
+            # Rename text to question_text
             question_args['question_text'] = question_args.pop('text')
-            # create the topic
+            # Create the topic
             question_args['topic'] = topic
-            # store the answers for later
+            # Store the answers for later
             answers = question_args.pop('answers')
-            
             # Create the Question
             question = Question.objects.create(**question_args)
-
             # Load the question's answers
             self.load_answers(answers, question)
 
@@ -98,4 +96,16 @@ class TopicsSchemaParser(object):
             # Create the topic with the values in topic_args
             topic = Topic.objects.create(**topic_args)
             self.load_questions(questions, topic)
+        self.load_dependencies()
+
+    def load_dependencies(self):
+        topics = Topic.objects.filter(parent=self.topic_obj)
+        for dep in self.dep:
+            topic = topics.filter(order=dep.topic)
+            question = Question.objects.filter(topic=topic, 
+                                               question_id=dep.question)
+            answer = Answer.objects.filter(question=question,
+                                           answer_id=dep.answer)
+            import ipdb; ipdb.set_trace()
+            # find the answer:
 

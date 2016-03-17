@@ -34,7 +34,7 @@ def load_schema(schema):
     )
     try:
         schema_obj.save()
-    except ValidationError as e:
+    except ValidationError:
         # we've already loaded this schema, pull it into memory.
         print "Schema already exists. It will be overwritten"
         curr_schema_obj = Topic.objects.get(name=schema_name)
