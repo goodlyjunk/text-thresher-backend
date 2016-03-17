@@ -30,34 +30,6 @@ class ClientSerializer(serializers.ModelSerializer):
         model = Client
         fields = ('name', 'topic')
 
-class UserSerializer(serializers.ModelSerializer):
-    password = serializers.Field(write_only=True)
-    experience_score = serializers.DecimalField(max_digits=5, decimal_places=3)
-    accuracy_score = serializers.DecimalField(max_digits=5, decimal_places=3)
-    topic = TopicSerializer(many=True)
-
-    def restore_object(self, attrs, instance=None):
-        if instance: # Update
-            user = instance
-            user.username = attrs['username']
-            user.email = attrs['url']
-            user.is_staff = attrs['is_staff']
-            user.topic = None
-            user.experience_score = 0.0
-            user.accuracy_score = 0.0
-        else: # Creation
-            user = User(username=attrs['username'],
-                        email=attrs['email'],
-                        is_staff=attrs['is_staff'],
-                        is_active=True,
-                        is_superuser=False)
-
-        user.set_password(attrs['password'])
-        return user
-
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'email', 'is_staff', 'password', 'experience_score', 'accuracy_score', 'topic')
 
 # class serializers.ModelSerializer(serializers.ModelSerializer):
 #    json_fields = [] # subclasses should assign these
@@ -84,7 +56,6 @@ class ArticleSerializer(serializers.ModelSerializer):
                   'parse_version', 'annotators')
 
 class AnswerSerializer(serializers.ModelSerializer):
-    next_question = QuestionSerializer()
 
     class Meta:
         model = Answer
@@ -132,6 +103,35 @@ class TUASerializer(serializers.ModelSerializer):
         model = TUA
         fields = ('id', 'tua_id', 'analysis_type', 'article', 'offsets')
         #depth = 1
+
+class UserSerializer(serializers.ModelSerializer):
+    password = serializers.Field(write_only=True)
+    experience_score = serializers.DecimalField(max_digits=5, decimal_places=3)
+    accuracy_score = serializers.DecimalField(max_digits=5, decimal_places=3)
+    topic = TopicSerializer(many=True)
+
+    def restore_object(self, attrs, instance=None):
+        if instance: # Update
+            user = instance
+            user.username = attrs['username']
+            user.email = attrs['url']
+            user.is_staff = attrs['is_staff']
+            user.topic = None
+            user.experience_score = 0.0
+            user.accuracy_score = 0.0
+        else: # Creation
+            user = User(username=attrs['username'],
+                        email=attrs['email'],
+                        is_staff=attrs['is_staff'],
+                        is_active=True,
+                        is_superuser=False)
+
+        user.set_password(attrs['password'])
+        return user
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'is_staff', 'password', 'experience_score', 'accuracy_score', 'topic')
 
 class MCSubmittedAnswerSerializer(serializers.ModelSerializer):
     question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
