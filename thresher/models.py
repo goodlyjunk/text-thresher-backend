@@ -115,7 +115,6 @@ class Topic(models.Model):
     # class Meta:
     #     unique_together = ("parent", "name") # not sure if this is correct.
 
-
     def __unicode__(self):
         # return "Topic %s in Analysis Type %s" % (self.name, self.analysis_type.name)
         return "Topic %s" % (self.name)
@@ -127,7 +126,6 @@ class Question(models.Model):
 
     # The topic this question belongs to
     topic = models.ForeignKey(Topic, related_name="related_questions", on_delete=models.CASCADE)
-
 
     # The type of question (e.g. multiple choice, text box, ...)
     # A list of all possible question types
@@ -147,7 +145,7 @@ class Question(models.Model):
         unique_together = ("topic", "question_text", "type")
 
     def __unicode__(self):
-        return "Question %d of type %s in topic %s" % (self.question_text, self.type, self.topic.name)
+        return "Question %d of type %s in topic %s" % (self.question_id, self.type, self.topic.name)
 
 # Possible answers for a given question
 # NOTE: This does NOT represent submitted answers, only possible answers
@@ -168,10 +166,8 @@ class Answer(models.Model):
         unique_together = ("answer_id", "question")
 
     def __unicode__(self):
-        return "Answer %d for Question %d in Topic %s" % (self.answer_id, 
-                                            self.question_id,
-                                            self.question_id.topic_id.name)
-
+        return "Answer %d for Question %d in Topic %s" 
+                % (self.answer_id, self.question, self.question.topic.name)
 
 # A submitted highlight group
 class HighlightGroup(models.Model):
