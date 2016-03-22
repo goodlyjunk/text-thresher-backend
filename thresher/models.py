@@ -86,9 +86,6 @@ class TUA(models.Model):
 
 # Possible topics for a given Analysis Type
 class Topic(models.Model):
-    # an id of a leaf topic
-    topic_id = models.IntegerField(null=True)
-
     # an id of its parent topic
     parent = models.ForeignKey("self", related_name="subtopics", on_delete=models.CASCADE, null=True)
 
