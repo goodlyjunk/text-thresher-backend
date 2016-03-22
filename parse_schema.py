@@ -59,7 +59,7 @@ class TopicsSchemaParser(object):
             answer_args['answer_content'] = answer_args.pop('text')
             # create the next question reference, it will be rewritten in
             # load_next_question
-            answer_args['question'] = None
+            answer_args['question'] = question
             # Create the answer in the database
             answer = Answer.objects.create(**answer_args)
 
