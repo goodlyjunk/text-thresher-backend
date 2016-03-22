@@ -57,8 +57,9 @@ class TopicsSchemaParser(object):
             answer_args['answer_id'] = answer_args.pop('id')
             # rename text to answer_content
             answer_args['answer_content'] = answer_args.pop('text')
-            # create the question reference
-            answer_args['question'] = question
+            # create the next question reference, it will be rewritten in
+            # load_next_question
+            answer_args['question'] = None
             # Create the answer in the database
             answer = Answer.objects.create(**answer_args)
 
@@ -96,7 +97,32 @@ class TopicsSchemaParser(object):
             # Create the topic with the values in topic_args
             topic = Topic.objects.create(**topic_args)
             self.load_questions(questions, topic)
+        self.load_next_question()
         self.load_dependencies()
+
+    def load_next_question(self):
+        """
+        Loads all mandatory next_questions to Answer objects. 
+        If an answer does not point to another question, that 
+        signals the end.
+        """
+        topics = Topic.objects.filter(parent=self.topic_obj)
+        for topic in topics:
+            stop_question_id = 0
+            for dep in self.dep:
+                if dep.topic == topic.topic_id:
+                    stop_question_id = dep.next_question
+                    break
+            if stop_question_id:
+                for question_id in range(1, stop_question_id):
+                    question = Question.objects.filter(topic=topic, 
+                                                       question_id=question_id)
+                    next_question = Question.objects.filter(
+                        topic=topic, question_id=question_id + 1)
+                    answers = Answer.objects.filter(question=question)
+                    for answer in answers:
+                        answer.next_question = next_question
+
 
     def load_dependencies(self):
         topics = Topic.objects.filter(parent=self.topic_obj)
@@ -110,7 +136,7 @@ class TopicsSchemaParser(object):
                 answers = Answer.objects.filter(question=question)
             else:
                 answers = Answer.objects.filter(question=question,
-                                           answer_id=dep.answer)
+                                                answer_id=dep.answer)
             for answer in answers:
                 answer.next_question = next_question
                 answer.save()
