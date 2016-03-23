@@ -19,7 +19,7 @@ parent: Events
 1.01.11 Strategic Violence
 1.01.12 Strategic Sabotage
 
-1.02 mc * What did the crowd block?
+* 1.02 mc What did the crowd block?
 1.02.01 Sidewalk 
 1.02.02 Street 
 1.02.03 Public transportation 
@@ -27,7 +27,7 @@ parent: Events
 1.02.05 Shipping port 
 1.02.06 Other
 
-1.03 mc * What type of event did the protesters disrupt?
+* 1.03 mc What type of event did the protesters disrupt?
 1.03.01 Political campaign
 1.03.02 Politician's speech
 1.03.03 City council meeting
@@ -35,7 +35,7 @@ parent: Events
 1.03.05 Country Club event
 1.03.06 Other
 
-1.04 mc * What is the title of the 1% who is being protested against?
+* 1.04 mc What is the title of the 1% who is being protested against?
 1.04.01 CEO of a company
 1.04.02 City mayor
 1.04.03 City council member
@@ -43,14 +43,14 @@ parent: Events
 1.04.05 U.S. president
 1.04.06 Other
 
-1.05 mc * What type of strategic violence occurred?
+* 1.05 mc What type of strategic violence occurred?
 1.05.01 Kidnapping
 1.05.02 Assassination
 1.05.03 Bombing
 1.05.04 Assault 
 1.05.05 Other
 
-1.06 * mc What type of strategic sabotage occurred?
+* 1.06 mc What type of strategic sabotage occurred?
 1.06.01 Pre-planned vandalism
 1.06.02 Pre-planned arson 
 1.06.03 Other
@@ -71,9 +71,9 @@ if 1.03.any, then 1.04
 3.01.02 An approximate number
 3.01.03 Information not given
 
-3.02 tb * Exactly how many protesters were in attendance?
+* 3.02 tb Exactly how many protesters were in attendance?
 
-3.03 mc * Approximately how many protesters were in attendance?
+* 3.03 mc Approximately how many protesters were in attendance?
 3.03.01 "A few," "a handful," "a small group": 2-5
 3.03.02 "Several," "a group: 6-10
 3.03.03 "A dozen (or so): 11-20
@@ -90,7 +90,7 @@ if 1.03.any, then 1.04
 3.03.14 "Tens of thousands": 20,001-90,000
 3.03.15 Hundreds of thousands: 100,000 or more
 
-3.04 mc * Who estimated the number of protesters in attendance?
+* 3.04 mc Who estimated the number of protesters in attendance?
 3.04.01 Media
 3.04.02 Police
 3.04.03 City official
@@ -104,9 +104,9 @@ if 1.03.any, then 1.04
 3.05.02 An approximate number
 3.05.03 Information not given
 
-3.06 tb * Exactly how many police were in attendance?
+* 3.06 tb Exactly how many police were in attendance?
 
-3.07 mc * Approximately how many police were in attendance?
+* 3.07 mc Approximately how many police were in attendance?
 3.07.01 "A few," "a handful," "a small group": 2-5
 3.07.02 "Several," "a group: 6-10
 3.07.03 "A dozen (or so): 11-20
@@ -122,7 +122,7 @@ if 1.03.any, then 1.04
 3.07.13 "Well over ten thousand": 12,001-17,000
 3.07.14 "Tens of thousands": 20,001-90,000
 
-3.08 mc * Who estimated the number of police in attendance?
+* 3.08 mc Who estimated the number of police in attendance?
 3.08.01 Media
 3.08.02 Police
 3.08.03 City official
