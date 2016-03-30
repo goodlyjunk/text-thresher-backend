@@ -2,212 +2,66 @@ Please use this module as a guide for formatting your modules to the EXACT wordi
 
 title: Protester
 parent: Events
+title: Protester
+parent: Events
+
 1 Event type
-2 Event location
-3 Event Attendance
 
-1.01 mc What type of event is described in the highlighted text?
-1.01.02 March/Parade
-1.01.03 Rally/Demonstration
-1.01.04 Strike
-1.01.05 Blocking Action
-1.01.06 Establishing a Camp
-1.01.07 Moving a camp to a new location
-1.01.08 Disrupting an on-going event of the perceived 1%
-1.01.09 Divestment Action
-1.01.10 Voluntary Dissolution of a camp
-1.01.11 Strategic Violence
-1.01.12 Strategic Sabotage
+? 01 mc What type of event is described in the highlighted text?
+a March/Parade
+b Rally/Demonstration
+c Strike
+d Blocking Action
+e Establishing a Camp
+f Moving a camp to a new location
+g Disrupting an on-going event of the perceived 1%
+h Divestment Action
+i Voluntary Dissolution of a camp
+j Strategic Violence
+k Strategic Sabotage
 
-* 1.02 mc What did the crowd block?
-1.02.01 Sidewalk 
-1.02.02 Street 
-1.02.03 Public transportation 
-1.02.04 Airport 
-1.02.05 Shipping port 
-1.02.06 Other
+if 01 == d, then 02
+if 01 == g, then 03
+if 01 == j, then 05
+if 01 == k, then 06
 
-* 1.03 mc What type of event did the protesters disrupt?
-1.03.01 Political campaign
-1.03.02 Politician's speech
-1.03.03 City council meeting
-1.03.04 Auction
-1.03.05 Country Club event
-1.03.06 Other
+* 02 mc What did the crowd block?
+a Sidewalk 
+b Street 
+c Public transportation 
+d Airport 
+e Shipping port 
+f Other
 
-* 1.04 mc What is the title of the 1% who is being protested against?
-1.04.01 CEO of a company
-1.04.02 City mayor
-1.04.03 City council member
-1.04.04 State legislator
-1.04.05 U.S. president
-1.04.06 Other
+* 03 mc What type of event did the protesters disrupt?
+a Political campaign
+b Politician's speech
+c City council meeting
+d Auction
+e Country Club event
+f Other
 
-* 1.05 mc What type of strategic violence occurred?
-1.05.01 Kidnapping
-1.05.02 Assassination
-1.05.03 Bombing
-1.05.04 Assault 
-1.05.05 Other
+if 03 == *, then 04
 
-* 1.06 mc What type of strategic sabotage occurred?
-1.06.01 Pre-planned vandalism
-1.06.02 Pre-planned arson 
-1.06.03 Other
+* 04 mc What is the title of the 1% who is being protested against?
+a CEO of a company
+b City mayor
+c City council member
+d State legislator
+e U.S. president
+f Other
 
-if 1.01.05, then 1.02
-if 1.01.08, then 1.03
-if 1.01.11, then 1.05
-if 1.01.12, then 1.06
-if 1.03.any, then 1.04 
+* 05 mc What type of strategic violence occurred?
+a Kidnapping
+b Assassination
+c Bombing
+d Assault 
+e Other
 
-2.01 mc Which of the following information does the text give about the event's location?
-2.01.01 The exact location or address
-2.01.02 An approximate location, or clues about where the event took place
-2.01.03 Information not given
-
-3.01 mc Which of the following information does the text give about the number of protesters in attendance?
-3.01.01 The exact number
-3.01.02 An approximate number
-3.01.03 Information not given
-
-* 3.02 tb Exactly how many protesters were in attendance?
-
-* 3.03 mc Approximately how many protesters were in attendance?
-3.03.01 "A few," "a handful," "a small group": 2-5
-3.03.02 "Several," "a group: 6-10
-3.03.03 "A dozen (or so): 11-20
-3.03.04 "A small crowd," "a couple dozen: 21-35
-3.03.05 "A crowd: 36-75
-3.03.06 "A large crowd," "a hundred or so: 76-150
-3.03.07 "A mass," "hundreds": 151-500
-3.03.08 "Several hundred: 501-850
-3.03.09 "About a thousand": 851-1,300
-3.03.10 Thousands, a few thousand: 1,301-4,500
-3.03.11 "Several thousand": 4,501-8,500
-3.03.12 "Around ten thousand": 8,501-12,000
-3.03.13 "Well over ten thousand": 12,001-20,000
-3.03.14 "Tens of thousands": 20,001-90,000
-3.03.15 Hundreds of thousands: 100,000 or more
-
-* 3.04 mc Who estimated the number of protesters in attendance?
-3.04.01 Media
-3.04.02 Police
-3.04.03 City official
-3.04.04 Protester
-3.04.05 Citizen or other person not affiliated with the camp, media, police, or city
-3.04.06 Information not given
-3.04.07 Other
-
-3.05 mc Which of the following information does the text give about the number of police in attendance?
-3.05.01 The exact number
-3.05.02 An approximate number
-3.05.03 Information not given
-
-* 3.06 tb Exactly how many police were in attendance?
-
-* 3.07 mc Approximately how many police were in attendance?
-3.07.01 "A few," "a handful," "a small group": 2-5
-3.07.02 "Several," "a group: 6-10
-3.07.03 "A dozen (or so): 11-20
-3.07.04 "A small crowd," "a couple dozen: 21-35
-3.07.05 "A crowd: 36-75
-3.07.06 "A large crowd," "a hundred or so: 76-150
-3.07.07 "A mass," "hundreds": 151-500
-3.07.08 "Several hundred: 501-850
-3.07.09 "About a thousand": 851-1,300
-3.07.10 Thousands, a few thousand: 1,301-4,500
-3.07.11 "Several thousand": 4,501-8,500
-3.07.12 "Around ten thousand": 8,501-12,000
-3.07.13 "Well over ten thousand": 12,001-17,000
-3.07.14 "Tens of thousands": 20,001-90,000
-
-* 3.08 mc Who estimated the number of police in attendance?
-3.08.01 Media
-3.08.02 Police
-3.08.03 City official
-3.08.04 Protester
-3.08.05 Citizen or other person not affiliated with the camp, media, police, or city
-3.08.06 Information not given
-3.08.07 Other
-
-3.09 cl Which of the following groups and identities were in attendance?
-3.09.01 A wide variety of groups and identities
-3.09.02 Women
-3.09.03 Anarchists
-3.09.04 Homeless
-3.09.05 Union members
-3.09.06 Reinforcement campers from other cities
-3.09.07 Religious leaders or communities
-3.09.08 Occupy the Hood protesters
-3.09.09 Other groups allied with Occupy
-3.09.10 Celebrities 
-3.09.11 Black/African-American 
-3.09.12 Hispanic/Latino/Chicano 
-3.09.13 Asian-American/Pacific Islander
-3.09.14 Native American
-3.09.15 Information not given
-
-3.10 cl Which of the following economic class groups were in attendance?
-3.10.01 A wide variety of classes
-3.10.02 Working/Lower (less than $24,999)
-3.10.03 Lower-Middle ($25,000-$49,999)
-3.10.04 Middle ($50,000-$74,999)
-3.10.05 Upper-Middle ($75,000-$99,999)
-3.10.06 Upper ($100,000-$249,999)
-3.10.07 The 1% ($250,000+)
-3.10.08 Information not given
-
-3.11 cl Which of the following age groups were in attendance?
-3.11.01 A wide variety of ages
-3.11.02 Under 18 
-3.11.03 18-25 
-3.11.04 26-35 
-3.11.05 36-45
-3.11.06 46-65
-3.11.07 66 or older
-3.11.08 Information not given
-
-3.12 cl Which of the following educational attainment groups were in attendance?
-3.12.01 A wide variety of educational attainment levels
-3.12.02 Less than high school diploma
-3.12.03 High school diploma/GED
-3.12.04 Some college (2 years or fewer)
-3.12.05 College degree (B.A., B.S., trade school, technical school)
-3.12.06 Master's degree
-3.12.07 PhD 
-3.12.08 Information not given
-
-3.13 cl Which career fields/occupations were in attendance?
-3.13.01 A wide variety of career fields/occupations
-3.13.02 Unemployed
-3.13.03 Architecture and Engineering
-3.13.04 Arts, Entertainment, and Media
-3.13.05 Cleaning and Janitorial
-3.13.06 Business and Finance
-3.13.07 Community and Social Services
-3.13.10 Computer and Mathematical
-3.13.11 Construction and Maintenance
-3.13.12 Education and Library
-3.13.13 Farming, Fishing, and Forestry
-3.13.14 Food Services
-3.13.15 Healthcare Practitioners, Technical, and Support
-3.13.16 Legal
-3.13.17 Life, Physical, and Social Science
-3.13.18 Office and Management
-3.13.19 Military
-3.13.20 Personal Care and Service
-3.13.21 Production
-3.13.22 Sales and Marketing
-3.13.23 Transportation 
-3.13.24 Information not given
-
-if 3.01.01, then 3.02
-if 3.01.02, then 3.03
-if 3.03.any, then 3.04
-if 3.05.01, then 3.06
-if 3.05.02, then 3.07
-if 3.07.any, then 3.08
+* 06 mc What type of strategic sabotage occurred?
+a Pre-planned vandalism
+b Pre-planned arson 
+c Other 
 
 Instructions: The highlighted text describes an event occurring during the Occupy movement. We need your help to categorize what kind of event this was. Compare the information in the highlighted text to the definitions in the table below.
 
@@ -237,7 +91,7 @@ glossary: rally/demonstration: protesters stay in one spot while listening to sp
 
 glossary: strategic violence: protesters carry out a pre-planned act of violence against other humans eg. Kidnapping, bombing, assassination, assault. Note: only use this classification for the event if it is clear that the highlighted text describes activities that were planned in advance.	
 
-glossary: strategic sabotage: protesters carry out pre-planned act of destruction of physical property eg vandalism, setting fires, breaking windows, etc. Note: only use this classification for the event if it is clear that the highlighted text describes activities that were planned in advance.		
+glossary: strategic sabotage: protesters carry out pre-planned act of destruction of physical property eg vandalism, setting fires, breaking windows, etc. Note: only use this classification for the event if it is clear that the highlighted text describes activities that were planned in advance.	
 
 glossary: strike: protesters and allies refuse to work at a specified time. Sometimes participants will carry signs and attempt to shame people who do not participate.		
 
