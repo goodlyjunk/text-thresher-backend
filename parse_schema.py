@@ -110,7 +110,7 @@ class TopicsSchemaParser(object):
         for topic in topics:
             stop_question_id = 0
             for dep in self.dep:
-                if dep.topic == topic.topic_id:
+                if dep.topic == topic.order:
                     stop_question_id = dep.next_question
                     break
             if stop_question_id:
@@ -118,7 +118,7 @@ class TopicsSchemaParser(object):
                     question = Question.objects.filter(topic=topic, 
                                                        question_id=question_id)
                     next_question = Question.objects.filter(
-                        topic=topic, question_id=question_id + 1)
+                        topic=topic, question_id=question_id + 1)[0]
                     answers = Answer.objects.filter(question=question)
                     for answer in answers:
                         answer.next_question = next_question
@@ -130,13 +130,19 @@ class TopicsSchemaParser(object):
             topic = topics.filter(order=dep.topic)
             question = Question.objects.filter(topic=topic, 
                                                question_id=dep.question)
+            answers = Answer.objects.filter(
+                question=question)
             next_question = Question.objects.filter(
                 topic=topic, question_id=dep.next_question)[0]
+            next_question_answers = Answer.objects.filter(
+                question=next_question)
+            default_next_question = answers[0].question
+            for answer in next_question_answers:
+                answer.next_question = default_next_question
             if dep.answer == 'any':
-                answers = Answer.objects.filter(question=question)
+                answers = answers
             else:
-                answers = Answer.objects.filter(question=question,
-                                                answer_id=dep.answer)
+                answers = answers.filter(answer_id=dep.answer)
             for answer in answers:
                 answer.next_question = next_question
                 answer.save()
