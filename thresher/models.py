@@ -137,6 +137,9 @@ class Question(models.Model):
 
     # The question text
     question_text = models.TextField()
+    
+    # Whether the question is a contingency one or not
+    contingency = models.BooleanField()
 
     class Meta:
         unique_together = ("topic", "question_text", "type")
