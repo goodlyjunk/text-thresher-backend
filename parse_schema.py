@@ -29,23 +29,6 @@ class TopicsSchemaParser(object):
             raise ValueError("schema must be an instance of Topic\
                     model")
         self.dep = dependencies
-        self.clean_dependencies()
-
-    def clean_dependencies(self):
-        """
-        Returns a list of named tuples that represent each dependency:
-        [Dependency(topic, question, answer, next_topic, next_topic)]
-        Also converts strings to integers.
-        """
-        Dependency = namedtuple('Dependency', ['topic', 'question', 'answer', 'next_topic', 'next_question'])
-        clean_dep = []
-        for dep in self.dep:
-            answer, next_question = dep
-            new_dep = answer.split(".")
-            new_dep.extend(next_question.split("."))
-            new_dep = [int(val) if val != 'any' else val for val in new_dep]
-            clean_dep.append(Dependency(*new_dep))
-        self.dep = clean_dep
 
     def load_answers(self, answers, question):
         """
@@ -53,10 +36,6 @@ class TopicsSchemaParser(object):
         """
         # find the corresponding topic and question ids
         for answer_args in answers:
-            # rename the id to answer_id
-            answer_args['answer_id'] = answer_args.pop('id')
-            # rename text to answer_content
-            answer_args['answer_content'] = answer_args.pop('text')
             # create the next question reference, it will be rewritten in
             # load_next_question
             answer_args['question'] = question
@@ -68,17 +47,13 @@ class TopicsSchemaParser(object):
         Creates the questions instances for the given topic
         """
         for question_args in questions:
-            # Rename the id to question_id
-            question_args['question_id'] = question_args.pop('id')
-            # Rename text to question_text
-            question_args['question_text'] = question_args.pop('text')
             # Create the topic
             question_args['topic'] = topic
             # Store the answers for later
             answers = question_args.pop('answers')
             # Create the Question
             question = Question.objects.create(**question_args)
-            # Load the question's answers
+            # Load the Question's answers
             self.load_answers(answers, question)
 
     def load_topics(self):
@@ -100,28 +75,29 @@ class TopicsSchemaParser(object):
         self.load_next_question()
         self.load_dependencies()
 
+    def write_answers(self, curr_question, next_question):
+        curr_question.default_next = next_question
+        curr_question.save()
+
+        answers = Answer.objects.filter(question=curr_question)
+        for answer in answers:
+            answer.next_question = next_question
+            answer.save()
+
     def load_next_question(self):
         """
         Loads all mandatory next_questions to Answer objects. 
         If an answer does not point to another question, that 
-        signals the end.
+        signals the end. Also populates each mandatory question 
+        with a default next question.
         """
         topics = Topic.objects.filter(parent=self.topic_obj)
         for topic in topics:
-            stop_question_id = 0
-            for dep in self.dep:
-                if dep.topic == topic.order:
-                    stop_question_id = dep.next_question
-                    break
-            if stop_question_id:
-                for question_id in range(1, stop_question_id):
-                    question = Question.objects.filter(topic=topic, 
-                                                       question_id=question_id)
-                    next_question = Question.objects.filter(
-                        topic=topic, question_id=question_id + 1)[0]
-                    answers = Answer.objects.filter(question=question)
-                    for answer in answers:
-                        answer.next_question = next_question
+            questions = Question.objects.filter(topic=topic, 
+                                                contingency=False) \
+                                        .order_by('question_id')
+            for i in range(len(questions) - 1):
+                self.write_answers(questions[i], questions[i + 1])
 
 
     def load_dependencies(self):
@@ -136,10 +112,16 @@ class TopicsSchemaParser(object):
                 topic=topic, question_id=dep.next_question)[0]
             next_question_answers = Answer.objects.filter(
                 question=next_question)
-            default_next_question = answers[0].question
+            default_next_question = answers[0].next_question
+
+            # First we populate the contingency question's answers with the
+            # default next answer
             for answer in next_question_answers:
                 answer.next_question = default_next_question
-            if dep.answer == 'any':
+                answer.save()
+
+            # Now we point the current question's answer to the next question
+            if dep.answer == '*':
                 answers = answers
             else:
                 answers = answers.filter(answer_id=dep.answer)
