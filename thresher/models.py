@@ -141,6 +141,9 @@ class Question(models.Model):
     # Whether the question is a contingency one or not
     contingency = models.BooleanField()
 
+    # The default next question (for mandatory questions)
+    default_next = models.ForeignKey('self', related_name="next_default", on_delete=models.CASCADE, null=True)
+
     class Meta:
         unique_together = ("topic", "question_text", "type")
 
