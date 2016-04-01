@@ -72,6 +72,9 @@ a The exact location or address
 b An approximate location, or clues about where the event took place
 c Information not given
 
+if 01 == a, then 02
+if 01 == b, then 03
+
 * 02 tb Exactly where did the event take place?
 
 * 03 mc Approximately where did the event take place?
@@ -81,9 +84,6 @@ c Near protester camp
 d Downtown
 e Near City Hall
 f Other
-
-if 01 == a, then 02
-if 01 == b, then 03
 
 Instructions: The highlighted text describes an event occurring during the Occupy movement. We need your help to categorize what kind of event this was. Compare the information in the highlighted text to the definitions in the table below.
 
