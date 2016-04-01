@@ -16,8 +16,16 @@ Dependency = namedtuple('Dependency', ['topic', 'question', 'answer', 'next_ques
 def is_answer(type_id):
     return type_id.isalpha() and len(type_id) == 1
 
+def load_defaults(output):
+    output['parent'] = ''
+    output['topics'] = []
+    output['glossary'] = {}
+    output['dependencies'] = []
+
 def parse_schema(schema_file=IN_FILE):
     parsed_schema = {}
+    load_defaults(parsed_schema)
+
     with open(schema_file, 'r') as f:
         for line in f:
             raw_line = line.strip()
@@ -57,8 +65,6 @@ def parse_instructions(instructions, output):
     output['instructions'] = instructions
 
 def parse_glossary(glossary_entry, output):
-    if 'glossary' not in output:
-        output['glossary'] = {}
     term, definition = glossary_entry.split(':', 1)
     output['glossary'][term.strip()] = definition.strip()
 
@@ -76,8 +82,6 @@ def parse_dependency(dependency, output):
                                          dependency.split(DEPENDENCY_TARGET, 1)]
     source_answer_id = clean_answer_id(source_answer_id)
     target_question = int(target_question)
-    if 'dependencies' not in output:
-        output['dependencies'] = []
     output['dependencies'].append(Dependency(source_topic_id, 
                                              source_question_id, 
                                              source_answer_id, target_question))
