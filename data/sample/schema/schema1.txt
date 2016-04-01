@@ -2,8 +2,6 @@ Please use this module as a guide for formatting your modules to the EXACT wordi
 
 title: Protester
 parent: Events
-title: Protester
-parent: Events
 
 1 Event type
 
