@@ -22,12 +22,12 @@ HIGH_ID = 20000
 def load_schema(schema):
     schema_name = schema['title']
     schema_parent = schema['parent']
-    # if schema_parent:
-    #     p_id = Topic.objects.get(name=schema_parent).id #TODO: Query for parent.
-    # else:
-    p_id = None
+    if schema_parent:
+        parent = Topic.objects.get(name=schema_parent)
+    else:
+        parent = None
     schema_obj = Topic(
-        parent = p_id,
+        parent = parent,
         name=schema_name,
         instructions=schema['instructions'],
         glossary=json.dumps(schema['glossary'])
