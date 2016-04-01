@@ -49,7 +49,7 @@ def load_schema(schema):
         Topic.objects.filter(parent=schema_obj).delete()
 
     ANALYSIS_TYPES[schema_name] = schema_obj
-    print "loading schema..."
+    print "loading schema:", schema_name
 
     # Load the topics, questions and answers of the schema
     schema_parser = TopicsSchemaParser(topic_obj=schema_obj, 
