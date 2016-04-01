@@ -68,6 +68,8 @@ class TopicsSchemaParser(object):
         for topic_args in self.schema_json:
             # Get the questions to add them later
             questions = topic_args.pop('questions')
+            # Change id to order
+            topic_args['order'] = topic_args.pop('id')
             # Set reference to parent
             topic_args['parent'] = self.topic_obj
             # Create the topic with the values in topic_args
