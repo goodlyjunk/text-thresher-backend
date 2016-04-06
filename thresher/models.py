@@ -59,7 +59,7 @@ class Topic(models.Model):
     name = models.TextField()
 
     # The referenced article
-    article = models.ForeignKey(Article)
+    article = models.ForeignKey(Article, null=True)
 
     # The relevant offsets in the article text.
     # Stored as a JSON list of (start, end) pairs.
