@@ -63,7 +63,7 @@ class Topic(models.Model):
 
     # The relevant offsets in the article text.
     # Stored as a JSON list of (start, end) pairs.
-    highlight = models.OneToOneField("HighlightGroup")
+    highlight = models.OneToOneField("HighlightGroup", null=True)
 
     # The order of a leaf-topic
     order = models.IntegerField(null=True)
