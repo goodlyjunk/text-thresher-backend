@@ -1,8 +1,7 @@
 import json
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from models import (Article, AnalysisType, TUA,
-                    Topic, Question, Answer,
+from models import (Article, Topic, Question, Answer,
                     HighlightGroup, MCSubmittedAnswer,
                     DTSubmittedAnswer, CLSubmittedAnswer,
                     TBSubmittedAnswer, Client)
@@ -29,22 +28,6 @@ class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
         fields = ('name', 'topic')
-
-
-# class serializers.ModelSerializer(serializers.ModelSerializer):
-#    json_fields = [] # subclasses should assign these
-
-#    def __init__(self, *args, **kwargs):
-#        super(serializers.ModelSerializer, self).__init__(*args, **kwargs)
-
-#        # add transformation methods for the relevant fields
-#        def to_json(obj, value):
-#            if not value:
-#                return json.loads("{}")
-#            return json.loads(value)
-
-#        for field in self.json_fields:
-#            setattr(self, 'transform_' + field, to_json)
 
 class ArticleSerializer(serializers.ModelSerializer):
     annotators = JSONSerializerField()
@@ -78,31 +61,13 @@ class TopicSerializer(serializers.ModelSerializer):
 
     glossary = JSONSerializerField()
 
+    highlight = fields.Nested('HighlightGroupSerializer')
+
     class Meta:
         model = Topic
-        fields = ('id', 'parent', 'name', 'order', 'glossary',
-                  'instructions', 'related_questions', 'clients')
-
-class AnalysisTypeSerializer(serializers.ModelSerializer):
-    glossary = JSONSerializerField()
-    question_dependencies = JSONSerializerField()
-    #topics = JSONSerializerField()
-    topics = TopicSerializer(many=True)
-
-    class Meta:
-        model = AnalysisType
-        fields = ('id', 'name', 'instructions', 'glossary', 'topics',
-                  'question_dependencies')
-
-class TUASerializer(serializers.ModelSerializer):
-    analysis_type = AnalysisTypeSerializer()
-    article = ArticleSerializer()
-    offsets = JSONSerializerField()
-
-    class Meta:
-        model = TUA
-        fields = ('id', 'tua_id', 'analysis_type', 'article', 'offsets')
-        #depth = 1
+        fields = ('id', 'parent', 'name', 'article', 'highlight',
+                  'order', 'glossary', 'instructions', 
+                  'related_questions', 'clients')
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.Field(write_only=True)
@@ -131,7 +96,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'is_staff', 'password', 'experience_score', 'accuracy_score', 'topic')
+        fields = ('id', 'username', 'email', 'is_staff', 'password', 
+                  'experience_score', 'accuracy_score', 'topic')
 
 class MCSubmittedAnswerSerializer(serializers.ModelSerializer):
     question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
@@ -214,7 +180,7 @@ class HighlightGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HighlightGroup
-        fields = ('tua', 'offsets', 'questions')
+        fields = ('offsets', 'questions')
 
     def create(self, validated_data):
         # Get the answers nested models
