@@ -15,7 +15,7 @@ from django.core.exceptions import ValidationError
 from data.parse_document import parse_document
 from data.parse_schema import parse_schema
 from parse_schema import TopicsSchemaParser
-from thresher.models import Article, AnalysisType, TUA, Topic
+from thresher.models import Article, Topic
 ANALYSIS_TYPES = {}
 HIGH_ID = 20000
 
@@ -90,10 +90,10 @@ def load_article(article):
         for tua_id, offset_list in tuas.iteritems():
             try:
                 analysis_type = (ANALYSIS_TYPES.get(tua_type) or
-                                 AnalysisType.objects.get(name=tua_type))
-            except AnalysisType.DoesNotExist:
+                                 Topic.objects.get(name=tua_type))
+            except Topic.DoesNotExist:
                 # No analysis type loaded--create a dummy type.
-                analysis_type = AnalysisType.objects.create(
+                analysis_type = Topic.objects.create(
                     name=tua_type,
                     requires_processing=tua_type not in ['Useless', 'Future'],
                     instructions='',
@@ -105,7 +105,7 @@ def load_article(article):
 #                raise ValueError("No TUA type '" + tua_type +
 #                                 "' registered. Have you loaded the schemas?")
             try:
-                tua_obj = TUA(
+                tua_obj = Topic(
                     analysis_type=analysis_type,
                     article=article_obj,
                     offsets=json.dumps(offset_list), # Probably need to process this more.
