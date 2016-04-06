@@ -7,8 +7,10 @@ class UserProfile(models.Model):
     # Add link to default User model
     user = models.OneToOneField(User)
 
-    # All topics have a set of users associated with them, so add a link to the parent Topic
-    topic = models.ForeignKey("Topic", on_delete=models.CASCADE, related_name="users")
+    # All topics have a set of users associated with them, 
+    # so add a link to the parent Topic
+    topic = models.ForeignKey("Topic", on_delete=models.CASCADE, 
+                              related_name="users")
     # "Topic" is in strings because it has not yet been defined.
 
     # Metadata
@@ -20,7 +22,8 @@ class UserProfile(models.Model):
 
 class Client(models.Model):
     name = models.CharField(max_length=100)
-    topic = models.ForeignKey("Topic", on_delete=models.CASCADE, related_name="clients")
+    topic = models.ForeignKey("Topic", on_delete=models.CASCADE, 
+                              related_name="clients")
     def __unicode__(self):
         return "Client %s" % username
 
@@ -46,51 +49,21 @@ class Article(models.Model):
             self.article_id, self.city_published, self.state_published,
             self.periodical)
 
-# Possible Analysis Types
-class AnalysisType(models.Model):
-    name = models.CharField(max_length=40, unique=True)
-    requires_processing = models.BooleanField(default=False)
-    instructions = models.TextField()
-    glossary = models.TextField() # as a JSON map
-    #topics = models.TextField() # as a big JSON blob.
-    question_dependencies = models.TextField() # as a big JSON blob.
+# Topics that are either parents of leaf topics, or leaf topics with questions.
+class Topic(models.Model):
+    # an id of its parent topic
+    parent = models.ForeignKey("self", related_name="subtopics",
+                               on_delete=models.CASCADE, null=True)
 
-    def __unicode__(self):
-        return "Analysis Type %s" % self.name
-
-# A Text Unit of Analysis (TUA).
-# TUAs have types and reference text within an article
-class TUA(models.Model):
-    # The type of the TUA
-    analysis_type = models.ForeignKey(AnalysisType)
+    # The name of the topic
+    name = models.TextField()
 
     # The referenced article
     article = models.ForeignKey(Article)
 
     # The relevant offsets in the article text.
     # Stored as a JSON list of (start, end) pairs.
-    offsets = models.TextField()
-
-    # A unique id for TUAs of this type in this article
-    tua_id = models.IntegerField()
-
-    # Have we answered questions about this TUA yet?
-    is_processed = models.BooleanField(default=False)
-
-    # A tua_id is unique per analysis_type per article
-    class Meta:
-        unique_together = ("tua_id", "analysis_type", "article")
-
-    def __unicode__(self):
-        return "TUA %d (type %s)" % (self.id, self.analysis_type.name)
-
-# Possible topics for a given Analysis Type
-class Topic(models.Model):
-    # an id of its parent topic
-    parent = models.ForeignKey("self", related_name="subtopics", on_delete=models.CASCADE, null=True)
-
-    # The name of the topic
-    name = models.TextField()
+    highlight = models.OneToOneField("HighlightGroup")
 
     # The order of a leaf-topic
     order = models.IntegerField(null=True)
@@ -109,12 +82,13 @@ class Topic(models.Model):
         self.validate_unique()
         super(Topic, self).save(*args, **kwargs)
     
-    # class Meta:
-    #     unique_together = ("parent", "name") # not sure if this is correct.
+    class Meta:
+        unique_together = ("parent", "order", "name")
 
     def __unicode__(self):
-        # return "Topic %s in Analysis Type %s" % (self.name, self.analysis_type.name)
-        return "Topic %s" % (self.name)
+        if self.parent:
+            return "Topic %s in Parent %s" % (self.name, self.parent.name)
+        return "Topic %s (no parent)" % (self.name)
 
 # Question
 class Question(models.Model):
@@ -122,7 +96,8 @@ class Question(models.Model):
     question_id = models.IntegerField()
 
     # The topic this question belongs to
-    topic = models.ForeignKey(Topic, related_name="related_questions", on_delete=models.CASCADE)
+    topic = models.ForeignKey(Topic, related_name="related_questions", 
+                              on_delete=models.CASCADE)
 
     # The type of question (e.g. multiple choice, text box, ...)
     # A list of all possible question types
@@ -142,13 +117,15 @@ class Question(models.Model):
     contingency = models.BooleanField()
 
     # The default next question (for mandatory questions)
-    default_next = models.ForeignKey('self', related_name="next_default", on_delete=models.CASCADE, null=True)
+    default_next = models.ForeignKey('self', related_name="next_default", 
+                                     on_delete=models.CASCADE, null=True)
 
     class Meta:
         unique_together = ("topic", "question_text", "type")
 
     def __unicode__(self):
-        return "Question %d of type %s in topic %s" % (self.question_id, self.type, self.topic.name)
+        return "Question %d of type %s in topic %s" % (
+            self.question_id, self.type, self.topic.name)
 
 # Possible answers for a given question
 # NOTE: This does NOT represent submitted answers, only possible answers
@@ -163,7 +140,8 @@ class Answer(models.Model):
     answer_content = models.TextField()
 
     # The next question the answer is leading to
-    next_question = models.ForeignKey(Question, related_name="next_question", null=True)
+    next_question = models.ForeignKey(Question, related_name="next_question", 
+                                      null=True)
 
     class Meta:
         unique_together = ("answer_id", "question")
@@ -171,12 +149,10 @@ class Answer(models.Model):
     def __unicode__(self):
         return ("Answer %d for Question %s " 
                 "in Topic %s") % (self.answer_id, self.question.question_text, 
-                                 self.question.topic.name)
+                                  self.question.topic.name)
 
 # A submitted highlight group
 class HighlightGroup(models.Model):
-    # The tua being analyzed
-    tua = models.ForeignKey(TUA)
 
     # The highlighted text (stored as JSON array of offset tuples)
     offsets = models.TextField()
