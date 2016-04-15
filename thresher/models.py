@@ -76,7 +76,7 @@ class SchemaTopic(models.Model):
 
     def save(self, *args, **kwargs):
         self.validate_unique()
-        super(Topic, self).save(*args, **kwargs)
+        super(SchemaTopic, self).save(*args, **kwargs)
     
     class Meta:
         unique_together = ("parent", "order", "name")
