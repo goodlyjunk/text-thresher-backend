@@ -6,7 +6,7 @@ from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from rest_framework import status
 
-from models import TUA, Article, AnalysisType, Topic, HighlightGroup, Client
+from models import Article, Topic, HighlightGroup, Client
 from serializers import (UserSerializer, ArticleSerializer, TopicSerializer, 
                          HighlightGroupSerializer, ClientSerializer)
 
