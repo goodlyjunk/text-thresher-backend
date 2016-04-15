@@ -61,10 +61,6 @@ class SchemaTopic(models.Model):
     # The referenced article
     article = models.ForeignKey(Article, null=True)
 
-    # The relevant offsets in the article text.
-    # Stored as a JSON list of (start, end) pairs.
-    highlight = models.OneToOneField("HighlightGroup", null=True)
-
     # The order of a leaf-topic
     order = models.IntegerField(null=True)
 
@@ -74,7 +70,7 @@ class SchemaTopic(models.Model):
     instructions = models.TextField()
 
     def validate_unique(self, exclude=None):
-        qs = Topic.objects.filter(name=self.name)
+        qs = SchemaTopic.objects.filter(name=self.name)
         if qs.filter(parent=self.parent).exists() and self.id != qs[0].id:
             raise ValidationError('Subtopics need to be unique.')
 
@@ -95,11 +91,11 @@ class Topic(models.Model):
     schema = models.ForeignKey(SchemaTopic, related_name="article_topic")
 
     # The referenced article
-    article = models.ForeignKey(Article, null=True)
+    article = models.ForeignKey(Article)
 
     # The relevant offsets in the article text.
     # Stored as a JSON list of (start, end) pairs.
-    highlight = models.OneToOneField("HighlightGroup", null=True)
+    highlight = models.OneToOneField("HighlightGroup")
     
     def __unicode__(self):
         return "Topic %s for Article %s" %(self.schema.name, self.article.article_id)
