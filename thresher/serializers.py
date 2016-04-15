@@ -23,57 +23,10 @@ class JSONSerializerField(serializers.Field):
 
 # Serializers define the API representation of the models.
 
-class ClientSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Client
-        fields = ('name', 'topic')
-
-class ArticleSerializer(serializers.ModelSerializer):
-    annotators = JSONSerializerField()
-
-    class Meta:
-        model = Article
-        fields = ('article_id', 'text', 'date_published', 'city_published',
-                  'state_published', 'periodical', 'periodical_code',
-                  'parse_version', 'annotators')
-
-class AnswerSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Answer
-        fields = ('id', 'answer_id', 'answer_content', 'next_question')
-
-class QuestionSerializer(serializers.ModelSerializer):
-    # A nested serializer for all the answers (if any)
-    answers = AnswerSerializer(many=True)
-
-    class Meta:
-        model = Question
-        fields = ('id', 'question_id', 'type', 'question_text', 'answers')
-
-class TopicSerializer(serializers.ModelSerializer):
-    # A nested serializer for all the questions
-    related_questions = QuestionSerializer(many=True)
-
-    # Nested serializer for all clients associated with a topic
-    clients = ClientSerializer(many=True)
-
-    glossary = JSONSerializerField()
-
-    highlight = fields.Nested('HighlightGroupSerializer')
-
-    class Meta:
-        model = Topic
-        fields = ('id', 'parent', 'name', 'article', 'highlight',
-                  'order', 'glossary', 'instructions', 
-                  'related_questions', 'clients')
-
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.Field(write_only=True)
     experience_score = serializers.DecimalField(max_digits=5, decimal_places=3)
     accuracy_score = serializers.DecimalField(max_digits=5, decimal_places=3)
-    topic = TopicSerializer(many=True)
 
     def restore_object(self, attrs, instance=None):
         if instance: # Update
@@ -98,6 +51,40 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email', 'is_staff', 'password', 
                   'experience_score', 'accuracy_score', 'topic')
+
+
+class ClientSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Client
+        fields = ('name', 'topic')
+
+
+class ArticleSerializer(serializers.ModelSerializer):
+    annotators = JSONSerializerField()
+
+    class Meta:
+        model = Article
+        fields = ('article_id', 'text', 'date_published', 'city_published',
+                  'state_published', 'periodical', 'periodical_code',
+                  'parse_version', 'annotators')
+
+
+class AnswerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Answer
+        fields = ('id', 'answer_id', 'answer_content', 'next_question')
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    # A nested serializer for all the answers (if any)
+    answers = AnswerSerializer(many=True)
+
+    class Meta:
+        model = Question
+        fields = ('id', 'question_id', 'type', 'question_text', 'answers')
+
 
 class MCSubmittedAnswerSerializer(serializers.ModelSerializer):
     question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
@@ -133,7 +120,6 @@ class DTSubmittedAnswerSerializer(serializers.ModelSerializer):
          model = DTSubmittedAnswer
          fields = ('question', 'answer', 'user')
 
-## Custom fields for the serializers ##
 
 class GenericSubmittedAnswerField(serializers.Field):
     """
@@ -172,7 +158,6 @@ class GenericSubmittedAnswerField(serializers.Field):
         return {'class':model, 'data':deserialized_data} 
                                
 
-# A serializer for a highlight group
 class HighlightGroupSerializer(serializers.ModelSerializer):
     # a custom field containing all the questions and answers
     questions = serializers.ListField(child=GenericSubmittedAnswerField())
@@ -214,4 +199,24 @@ class HighlightGroupSerializer(serializers.ModelSerializer):
                 model.objects.create(**kwargs)
 
         return highlight_group 
+
+
+
+class TopicSerializer(serializers.ModelSerializer):
+    # A nested serializer for all the questions
+    related_questions = QuestionSerializer(many=True)
+
+    # Nested serializer for all clients associated with a topic
+    clients = ClientSerializer(many=True)
+
+    glossary = JSONSerializerField()
+
+    highlight = HighlightGroupSerializer(many=True)
+
+    class Meta:
+        model = Topic
+        fields = ('id', 'parent', 'name', 'article', 'highlight',
+                  'order', 'glossary', 'instructions', 
+                  'related_questions', 'clients')
+
 
