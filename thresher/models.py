@@ -57,10 +57,7 @@ class SchemaTopic(models.Model):
 
     # The name of the topic
     name = models.TextField()
-
-    # The referenced article
-    article = models.ForeignKey(Article, null=True)
-
+    
     # The order of a leaf-topic
     order = models.IntegerField(null=True)
 
