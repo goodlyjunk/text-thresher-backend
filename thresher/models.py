@@ -49,7 +49,9 @@ class Article(models.Model):
             self.article_id, self.city_published, self.state_published,
             self.periodical)
 
-# Topics that are either parents of leaf topics, or leaf topics with questions.
+# SchemaTopics that are either parents of leaf topics, or leaf topics with questions.
+# Topics (defined further down) are "instances" of SchemaTopics, meaning that they
+# reference SchemaTopics' questions, answers, etc.
 class SchemaTopic(models.Model):
     # an id of its parent topic
     parent = models.ForeignKey("self", related_name="subtopics",
@@ -57,7 +59,7 @@ class SchemaTopic(models.Model):
 
     # The name of the topic
     name = models.TextField()
-    
+
     # The order of a leaf-topic
     order = models.IntegerField(null=True)
 
@@ -83,6 +85,7 @@ class SchemaTopic(models.Model):
             return "Topic %s in Parent %s" % (self.name, self.parent.name)
         return "Topic %s (no parent)" % (self.name)
 
+# A Topic that is bound to a specific article.
 class Topic(models.Model):
     # The schema topic we will be using
     schema = models.ForeignKey(SchemaTopic, related_name="article_topic")
