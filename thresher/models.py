@@ -162,9 +162,10 @@ class HighlightGroup(models.Model):
 # A container class for an Article and its Highlight Group
 # that will be referenced by a topic
 class ArticleHighlight(models.Model):
-    topic = models.ForeignKey(Topic, related_name="article_highlight", null=True)
+    topic = models.ForeignKey(Topic, related_name="article_highlight",
+                              on_delete=models.CASCADE)
     highlight = models.OneToOneField(HighlightGroup)
-    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, related_name="highlight_groups", on_delete=models.CASCADE)
 
     def __unicode__(self):
         return ("Highlights %s in Article %d") % (self.highlight.offsets, 
