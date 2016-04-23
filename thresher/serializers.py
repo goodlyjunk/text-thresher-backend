@@ -4,7 +4,7 @@ from rest_framework import serializers
 from models import (Article, Topic, Question, Answer,
                     HighlightGroup, MCSubmittedAnswer,
                     DTSubmittedAnswer, CLSubmittedAnswer,
-                    TBSubmittedAnswer, Client)
+                    TBSubmittedAnswer, Client, ArticleHighlight)
 
 
 # Custom JSON field
@@ -264,14 +264,26 @@ class HighlightGroupSerializer(serializers.Serializer):
 
         return highlight_group
 
+class ArticleHighlightSerializer(serializers.ModelSerializer):
+    # article = serializers.SerializerMethodField(method_name='get_one_article')
+
+    # def get_one_article(self, obj):
+    article = ArticleSerializer()
+
+    class Meta:
+        model = ArticleHighlight
+        fields = ('article')
+
 class TopicSerializer(serializers.ModelSerializer):
     # A nested serializer for all the questions
     related_questions = QuestionSerializer(many=True)
 
     glossary = JSONSerializerField()
 
+    article_highlight = ArticleHighlightSerializer()
+
     class Meta:
         model = Topic
         fields = ('id', 'parent', 'name',
                   'order', 'glossary', 'instructions', 
-                  'related_questions')
+                  'related_questions', 'article_highlight')
