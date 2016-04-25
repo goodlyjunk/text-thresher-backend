@@ -6,9 +6,10 @@ from rest_framework.decorators import list_route, api_view
 from rest_framework.response import Response
 from rest_framework import status
 
-from models import Article, Topic, HighlightGroup, Client, Question, Answer
+from models import Article, Topic, HighlightGroup, Client, Question, Answer, ArticleHighlight
 from serializers import (UserSerializer, ArticleSerializer, TopicSerializer, 
-                         HighlightGroupSerializer, ClientSerializer, QuestionSerializer)
+                         HighlightGroupSerializer, ClientSerializer, QuestionSerializer,
+                         ArticleHighlightSerializer)
 
 # Views for serving the API
 
@@ -43,6 +44,10 @@ class HighlightGroupViewSet(viewsets.ModelViewSet):
 
         else:
             return super(HighlightGroupViewSet, self).create(request, *args, **kwargs)
+
+class ArticleHighlightViewSet(viewsets.ModelViewSet):
+    queryset = ArticleHighlight.objects.all()
+    serializer_class = ArticleHighlightSerializer
 
 @api_view(['GET'])
 def child_topics(request, id):
@@ -111,3 +116,4 @@ ROUTER.register(r'users', UserViewSet)
 ROUTER.register(r'articles', ArticleViewSet)
 ROUTER.register(r'topics', TopicViewSet)
 ROUTER.register(r'highlight_groups', HighlightGroupViewSet)
+ROUTER.register(r'article_highlights', ArticleHighlightViewSet)

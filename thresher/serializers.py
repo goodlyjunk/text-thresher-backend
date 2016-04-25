@@ -265,14 +265,11 @@ class HighlightGroupSerializer(serializers.Serializer):
         return highlight_group
 
 class ArticleHighlightSerializer(serializers.ModelSerializer):
-    # article = serializers.SerializerMethodField(method_name='get_one_article')
-
-    # def get_one_article(self, obj):
     article = ArticleSerializer()
-
+    highlight = HighlightGroupSerializer()
     class Meta:
         model = ArticleHighlight
-        fields = ('article')
+        fields = ('article', 'highlight')
 
 class TopicSerializer(serializers.ModelSerializer):
     # A nested serializer for all the questions
@@ -280,7 +277,7 @@ class TopicSerializer(serializers.ModelSerializer):
 
     glossary = JSONSerializerField()
 
-    article_highlight = ArticleHighlightSerializer()
+    article_highlight = ArticleHighlightSerializer(many=True)
 
     class Meta:
         model = Topic
