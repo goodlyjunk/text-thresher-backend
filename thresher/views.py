@@ -25,7 +25,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
     serializer_class = ArticleSerializer
 
 class TopicViewSet(viewsets.ModelViewSet):
-    queryset = Topic.objects.all()
+    queryset = Topic.objects.filter(parent=None)
     serializer_class = TopicSerializer
 
 class HighlightGroupViewSet(viewsets.ModelViewSet):
@@ -43,6 +43,18 @@ class HighlightGroupViewSet(viewsets.ModelViewSet):
 
         else:
             return super(HighlightGroupViewSet, self).create(request, *args, **kwargs)
+
+@api_view(['GET'])
+def child_topics(request, id):
+    """
+    /topics/child/id \n
+    Gets all the child topics of a topic.
+    """
+    if request.method == 'GET':
+        topics = Topic.objects.get(parent=Topic.objects.get(id=id))
+        serializer = TopicSerializer(topics, many=False)
+        return Response(serializer.data)
+
 
 @api_view(['GET'])
 def questions(request):

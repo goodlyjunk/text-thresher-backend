@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^question/(?P<id>[0-9]+)$', views.question),
     url(r'^question/(?P<id>[0-9]+)/(?P<ans_id>[0-9]+)$', views.next_question),
     url(r'^post_question/', views.post_question),
+    url(r'^topics/child/(?P<id>[0-9]+)$', views.child_topics),
 ]
