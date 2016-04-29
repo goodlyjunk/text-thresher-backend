@@ -63,7 +63,7 @@ def topic(request, id):
 @api_view(['GET'])
 def child_topics(request, id):
     """
-    /topics/child/id \n
+    /topics/id/children \n
     Gets all the child topics of a topic.
     """
     if request.method == 'GET':
