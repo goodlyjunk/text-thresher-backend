@@ -272,7 +272,7 @@ class ArticleHighlightSerializer(serializers.ModelSerializer):
         fields = ('article', 'highlight')
 
 class TopicSerializer(serializers.ModelSerializer):
-    # A nested serializer for all the questions
+        # A nested serializer for all the questions
     related_questions = QuestionSerializer(many=True)
 
     glossary = JSONSerializerField()
@@ -284,3 +284,10 @@ class TopicSerializer(serializers.ModelSerializer):
         fields = ('id', 'parent', 'name',
                   'order', 'glossary', 'instructions', 
                   'related_questions', 'article_highlight')
+
+class RootTopicSerializer(serializers.ModelSerializer):
+    glossary = JSONSerializerField()
+
+    class Meta:
+        model = Topic
+        fields = ('id', 'name', 'order', 'glossary', 'instructions')

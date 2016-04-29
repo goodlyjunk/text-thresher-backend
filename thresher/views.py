@@ -9,7 +9,7 @@ from rest_framework import status
 from models import Article, Topic, HighlightGroup, Client, Question, Answer, ArticleHighlight
 from serializers import (UserSerializer, ArticleSerializer, TopicSerializer, 
                          HighlightGroupSerializer, ClientSerializer, QuestionSerializer,
-                         ArticleHighlightSerializer)
+                         ArticleHighlightSerializer, RootTopicSerializer)
 
 # Views for serving the API
 
@@ -22,12 +22,12 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 class ArticleViewSet(viewsets.ModelViewSet):
-    queryset = Article.objects.all()
+    queryset = Article.objects.all().order_by('article_id')
     serializer_class = ArticleSerializer
 
 class TopicViewSet(viewsets.ModelViewSet):
     queryset = Topic.objects.filter(parent=None)
-    serializer_class = TopicSerializer
+    serializer_class = RootTopicSerializer
 
 class HighlightGroupViewSet(viewsets.ModelViewSet):
     queryset = HighlightGroup.objects.all()
@@ -48,6 +48,17 @@ class HighlightGroupViewSet(viewsets.ModelViewSet):
 class ArticleHighlightViewSet(viewsets.ModelViewSet):
     queryset = ArticleHighlight.objects.all()
     serializer_class = ArticleHighlightSerializer
+
+@api_view(['GET'])
+def topic(request, id):
+    """
+    /topics/id \n
+    Gets all the information associated with a specific topic.
+    """
+    if request.method == 'GET':
+        topics = Topic.objects.get(id=id)
+        serializer = TopicSerializer(topics, many=False)
+        return Response(serializer.data)
 
 @api_view(['GET'])
 def child_topics(request, id):
