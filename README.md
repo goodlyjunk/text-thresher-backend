@@ -1,6 +1,8 @@
 Text Thresher Backend
 =====================
 
+## DEPRECATED: Please use `textthresher` repo
+
 The backend for Text Thresher, a tool for decomposing and annotating articles
 using the crowd. Under development for the
 [Deciding Force Project](http://www.decidingforce.org/).
